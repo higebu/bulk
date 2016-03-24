@@ -47,6 +47,11 @@ func TestReadWrite(t *testing.T) {
 				return
 			}
 			nr += n
+			for _, m := range rb.Messages[:n] {
+				if m.Addr == nil {
+					t.Errorf("got %#v; want non-nil", m.Addr)
+				}
+			}
 		}
 	}()
 	wg.Add(1)

@@ -29,12 +29,12 @@ type PacketConn struct {
 
 // ReadFrom reads a message from the endpoint.
 func (c *PacketConn) ReadFrom(b []byte) (int, net.Addr, error) {
-	return 0, nil, nil
+	return 0, nil, errOpNoSupport
 }
 
 // WriteTo writes the message b to dst.
 func (c *PacketConn) WriteTo(b []byte, dst net.Addr) (int, error) {
-	return 0, nil
+	return 0, errOpNoSupport
 }
 
 // Close closes the endpoint.
@@ -91,6 +91,8 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	msgs := messages(b.Messages)
+	(&msgs).gather(b.msgs[:n], c.laddr)
 	return n, nil
 }
 
@@ -110,6 +112,8 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	msgs := messages(b.Messages)
+	(&msgs).gather(b.msgs[:n], c.laddr)
 	return n, nil
 }
 

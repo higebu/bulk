@@ -6,12 +6,14 @@
 
 package bulk
 
+import "net"
+
 const sysMSG_WAITFORONE = 0
 
 type sysMmsghdr struct{}
 
-func (msgs messages) scatter() []sysMmsghdr       { return nil }
-func (msgs messages) gather(sysmsgs []sysMmsghdr) {}
+func (msgs messages) scatter() []sysMmsghdr                      { return nil }
+func (msgs *messages) gather(mmsgs []sysMmsghdr, laddr net.Addr) {}
 
 func recvmmsg(s uintptr, b *Batch, flags uint32) (int, error) { return 0, errOpNoSupport }
 func sendmmsg(s uintptr, b *Batch, flags uint32) (int, error) { return 0, errOpNoSupport }

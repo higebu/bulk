@@ -52,7 +52,7 @@ func ipPort(b *byte, l uint32) (net.IP, int) {
 }
 
 func (msgs messages) scatter() []sysMmsghdr {
-	sysmsgs := make([]sysMmsghdr, 0, len(msgs))
+	mmsgs := make([]sysMmsghdr, 0, len(msgs))
 	for i := range msgs {
 		if len(msgs[i].Data) == 0 {
 			continue
@@ -69,20 +69,29 @@ func (msgs messages) scatter() []sysMmsghdr {
 		iov.Len = uint64(len(msgs[i].Data))
 		m.Hdr.Iov = &iov
 		m.Hdr.Iovlen = 1
-		sysmsgs = append(sysmsgs, m)
+		mmsgs = append(mmsgs, m)
 	}
-	return sysmsgs
+	return mmsgs
 }
 
-func (msgs messages) gather(sysmsgs []sysMmsghdr) {
-	for i := range sysmsgs {
-		switch addr := msgs[i].Addr.(type) {
+func (msgs *messages) gather(mmsgs []sysMmsghdr, laddr net.Addr) {
+	for i := range mmsgs {
+		var addr net.Addr
+		switch laddr.(type) {
 		case *net.UDPAddr:
-			addr.IP, addr.Port = ipPort(sysmsgs[i].Hdr.Name, sysmsgs[i].Hdr.Namelen)
+			udp := &net.UDPAddr{}
+			udp.IP, udp.Port = ipPort(mmsgs[i].Hdr.Name, mmsgs[i].Hdr.Namelen)
+			addr = udp
 		case *net.IPAddr:
-			addr.IP, _ = ipPort(sysmsgs[i].Hdr.Name, sysmsgs[i].Hdr.Namelen)
+			ip := &net.IPAddr{}
+			ip.IP, _ = ipPort(mmsgs[i].Hdr.Name, mmsgs[i].Hdr.Namelen)
+			addr = ip
+		default:
 		}
-		msgs[i].N = int(sysmsgs[i].Len)
+		if addr != nil {
+			(*msgs)[i].Addr = addr
+		}
+		(*msgs)[i].N = int(mmsgs[i].Len)
 	}
 }
 
@@ -92,7 +101,6 @@ func recvmmsg(s uintptr, b *Batch, flags uint32) (int, error) {
 	if errno != 0 {
 		return 0, error(errno)
 	}
-	messages(b.Messages).gather(b.msgs[:n])
 	return int(n), nil
 }
 
@@ -102,6 +110,5 @@ func sendmmsg(s uintptr, b *Batch, flags uint32) (int, error) {
 	if errno != 0 {
 		return 0, error(errno)
 	}
-	messages(b.Messages).gather(b.msgs[:n])
 	return int(n), nil
 }
