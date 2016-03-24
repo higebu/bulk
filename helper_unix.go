@@ -7,6 +7,7 @@
 package bulk
 
 import (
+	"fmt"
 	"net"
 	"strconv"
 	"syscall"
@@ -48,6 +49,16 @@ func sockaddr(family int, address string) (syscall.Sockaddr, error) {
 	default:
 		return nil, net.InvalidAddrError("unexpected family")
 	}
+}
+
+func zoneToString(zone uint32) string {
+	if zone == 0 {
+		return ""
+	}
+	if ifi, err := net.InterfaceByIndex(int(zone)); err == nil {
+		return ifi.Name
+	}
+	return fmt.Sprintf("%d", zone)
 }
 
 func zoneToUint32(zone string) uint32 {

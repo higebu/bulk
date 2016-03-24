@@ -35,12 +35,12 @@ func listenPacket(network, address string) (*PacketConn, error) {
 		syscall.Close(s)
 		return nil, os.NewSyscallError("bind", err)
 	}
-	ip, port, err := getsockname(uintptr(s))
+	ip, port, zone, err := getsockname(uintptr(s))
 	if err != nil {
 		syscall.Close(s)
 		return nil, os.NewSyscallError("getsockname", err)
 	}
 	c := PacketConn{s: s}
-	c.laddr = &net.UDPAddr{IP: ip, Port: port}
+	c.laddr = &net.UDPAddr{IP: ip, Port: port, Zone: zone}
 	return &c, nil
 }
