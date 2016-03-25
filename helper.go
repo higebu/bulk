@@ -22,6 +22,7 @@ type interfaceInfoBase struct {
 var ifIB interfaceInfoBase
 
 func (ifib *interfaceInfoBase) init() {
+	ifib.gate = make(chan struct{}, 1)
 	ifib.indices = make(map[string]int)
 	ifib.fetch()
 	ifib.lastFetched = time.Now()
@@ -68,7 +69,7 @@ func (ifib *interfaceInfoBase) update() {
 	}
 	defer ifib.releaseSema()
 	now := time.Now()
-	if ifib.lastFetched.After(now.Add(-5 * time.Second)) {
+	if ifib.lastFetched.After(now.Add(-60 * time.Second)) {
 		return
 	}
 	ifib.lastFetched = now
