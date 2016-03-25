@@ -39,7 +39,7 @@ func socket(family, sotype, proto int) (int, error) {
 	return s, nil
 }
 
-func msgSockaddr(ip net.IP, port int) (*byte, uint32) {
+func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 	if ip.To4() != nil {
 		sa := sysSockaddrInet{Family: syscall.AF_INET}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
@@ -48,7 +48,7 @@ func msgSockaddr(ip net.IP, port int) (*byte, uint32) {
 		return (*byte)(unsafe.Pointer(&sa)), sysSizeofSockaddrInet
 	}
 	if ip.To16() != nil && ip.To4() == nil {
-		sa := sysSockaddrInet6{Family: syscall.AF_INET6}
+		sa := sysSockaddrInet6{Family: syscall.AF_INET6, Scope_id: ifIB.zoneToUint32(zone)}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip)

@@ -20,6 +20,10 @@ var (
 	errOpNoSupport = errors.New("operation not supported")
 )
 
+func init() {
+	ifIB.update()
+}
+
 // A PacketConn represents a packet network endpoint.
 type PacketConn struct {
 	mu    sync.RWMutex
@@ -87,12 +91,12 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := recvmmsg(uintptr(s), b.msgs, sysMSG_WAITFORONE)
+	n, err := recvmmsg(uintptr(s), b.mmsgs, sysMSG_WAITFORONE)
 	if err != nil {
 		return 0, err
 	}
 	msgs := messages(b.Messages)
-	(&msgs).gather(b.msgs[:n], c.laddr)
+	(&msgs).gather(b.mmsgs[:n], c.laddr)
 	return n, nil
 }
 
@@ -108,12 +112,12 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := sendmmsg(uintptr(s), b.msgs, 0)
+	n, err := sendmmsg(uintptr(s), b.mmsgs, 0)
 	if err != nil {
 		return 0, err
 	}
 	msgs := messages(b.Messages)
-	(&msgs).gather(b.msgs[:n], c.laddr)
+	(&msgs).gather(b.mmsgs[:n], c.laddr)
 	return n, nil
 }
 

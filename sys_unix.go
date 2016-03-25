@@ -59,9 +59,9 @@ func (msgs messages) scatter() []sysMmsghdr {
 		var m sysMmsghdr
 		switch addr := msgs[i].Addr.(type) {
 		case *net.UDPAddr:
-			m.Hdr.Name, m.Hdr.Namelen = msgSockaddr(addr.IP, addr.Port)
+			m.Hdr.Name, m.Hdr.Namelen = msgSockaddr(addr.IP, addr.Port, addr.Zone)
 		case *net.IPAddr:
-			m.Hdr.Name, m.Hdr.Namelen = msgSockaddr(addr.IP, 0)
+			m.Hdr.Name, m.Hdr.Namelen = msgSockaddr(addr.IP, 0, addr.Zone)
 		}
 		var iov sysIovec
 		iov.Base = (*byte)(unsafe.Pointer(&msgs[i].Data[0]))

@@ -25,13 +25,13 @@ type messages []Message
 type Batch struct {
 	Messages []Message
 
-	msgs []sysMmsghdr
+	mmsgs []sysMmsghdr
 }
 
 // Scatter scatters b on internal data for the following bacth read,
 // write operations.
 func (b *Batch) Scatter() error {
-	b.msgs = messages(b.Messages).scatter()
+	b.mmsgs = messages(b.Messages).scatter()
 	return nil
 }
 
