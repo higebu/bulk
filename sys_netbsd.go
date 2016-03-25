@@ -17,6 +17,19 @@ const (
 	sysSENDMMSG = 476
 )
 
+func socket(family, sotype, proto int) (int, error) {
+	syscall.ForkLock.RLock()
+	s, err = syscall.Socket(family, sotype, proto)
+	if err == nil {
+		syscall.CloseOnExec(s)
+	}
+	syscall.ForkLock.RUnlock()
+	if err != nil {
+		return -1, os.NewSyscallError("socket", err)
+	}
+	return s, nil
+}
+
 func msgSockaddr(ip net.IP, port int) (*byte, uint32) {
 	if ip.To4() != nil {
 		sa := sysSockaddrInet{Len: sysSizeofSockaddrInet, Family: syscall.AF_INET}

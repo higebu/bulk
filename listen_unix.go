@@ -22,9 +22,9 @@ func listenPacket(network, address string) (*PacketConn, error) {
 	default:
 		return nil, errOpNoSupport
 	}
-	s, err := syscall.Socket(family, syscall.SOCK_DGRAM, proto)
+	s, err := socket(family, syscall.SOCK_DGRAM, proto)
 	if err != nil {
-		return nil, os.NewSyscallError("socket", err)
+		return nil, err
 	}
 	sa, err := sockaddr(family, address)
 	if err != nil {

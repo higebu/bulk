@@ -8,6 +8,7 @@ package bulk
 
 import (
 	"net"
+	"os"
 	"syscall"
 	"unsafe"
 )
@@ -16,6 +17,27 @@ const (
 	sysRECVMMSG = 299 // 337 for arm, 0x40000219 for 386
 	sysSENDMMSG = 307 // 345 for arm, 0x4000021a for 386
 )
+
+func socket(family, sotype, proto int) (int, error) {
+	s, err := syscall.Socket(family, sotype|syscall.SOCK_CLOEXEC, proto)
+	switch err {
+	case nil:
+		return s, nil
+	case syscall.EINVAL, syscall.EPROTONOSUPPORT:
+	default:
+		return -1, os.NewSyscallError("socket", err)
+	}
+	syscall.ForkLock.RLock()
+	s, err = syscall.Socket(family, sotype, proto)
+	if err == nil {
+		syscall.CloseOnExec(s)
+	}
+	syscall.ForkLock.RUnlock()
+	if err != nil {
+		return -1, os.NewSyscallError("socket", err)
+	}
+	return s, nil
+}
 
 func msgSockaddr(ip net.IP, port int) (*byte, uint32) {
 	if ip.To4() != nil {
