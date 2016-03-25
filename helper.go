@@ -24,6 +24,7 @@ var ifIB interfaceInfoBase
 func (ifib *interfaceInfoBase) init() {
 	ifib.indices = make(map[string]int)
 	ifib.fetch()
+	ifib.lastFetched = time.Now()
 }
 
 func (ifib *interfaceInfoBase) fetch() {
