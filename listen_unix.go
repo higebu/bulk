@@ -17,22 +17,12 @@ func listenPacket(network, address string) (*PacketConn, error) {
 	if err != nil {
 		return nil, err
 	}
-	var family int
-	if addr.IP.To4() != nil {
-		family = syscall.AF_INET
-	}
-	if addr.IP.To16() != nil && addr.IP.To4() == nil {
-		family = syscall.AF_INET6
-	}
-	if addr.IP == nil || addr.IP.IsUnspecified() {
-		family = syscall.AF_INET
-	}
-	println(network, address, family)
+	family := addrFamily(network, addr.IP)
 	s, err := socket(family, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP)
 	if err != nil {
 		return nil, err
 	}
-	sa, err := sockaddr(family, address)
+	sa, err := sockaddr(family, addr.IP, addr.Port, addr.Zone)
 	if err != nil {
 		syscall.Close(s)
 		return nil, err
