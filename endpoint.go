@@ -87,7 +87,7 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := recvmmsg(uintptr(s), b, sysMSG_WAITFORONE)
+	n, err := recvmmsg(uintptr(s), b.msgs, sysMSG_WAITFORONE)
 	if err != nil {
 		return 0, err
 	}
@@ -108,7 +108,7 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := sendmmsg(uintptr(s), b, 0)
+	n, err := sendmmsg(uintptr(s), b.msgs, 0)
 	if err != nil {
 		return 0, err
 	}

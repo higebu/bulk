@@ -94,18 +94,18 @@ func (msgs *messages) gather(mmsgs []sysMmsghdr, laddr net.Addr) {
 	}
 }
 
-func recvmmsg(s uintptr, b *Batch, flags uint32) (int, error) {
-	l := uint32(len(b.msgs))
-	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&b.msgs[0])), uintptr(l), uintptr(flags), 0, 0)
+func recvmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
+	l := uint32(len(mmsgs))
+	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
 	if errno != 0 {
 		return 0, error(errno)
 	}
 	return int(n), nil
 }
 
-func sendmmsg(s uintptr, b *Batch, flags uint32) (int, error) {
-	l := uint32(len(b.msgs))
-	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&b.msgs[0])), uintptr(l), uintptr(flags), 0, 0)
+func sendmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
+	l := uint32(len(mmsgs))
+	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
 	if errno != 0 {
 		return 0, error(errno)
 	}
