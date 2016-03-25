@@ -118,7 +118,7 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 }
 
 // ListenPacket listens for incoming datagrams addressed to address.
-// At present, network must be "udp4" or "udp6".
+// At present, network must be "udp", "udp4" or "udp6".
 // See net.Dial for the syntax of address.
 func ListenPacket(network, address string) (*PacketConn, error) {
 	return listenPacket(network, address)
