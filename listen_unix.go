@@ -13,16 +13,18 @@ import (
 )
 
 func listenPacket(network, address string) (*PacketConn, error) {
-	var family, proto int
-	switch network {
-	case "udp4":
-		family, proto = syscall.AF_INET, syscall.IPPROTO_UDP
-	case "udp6":
-		family, proto = syscall.AF_INET6, syscall.IPPROTO_UDP
-	default:
-		return nil, errOpNoSupport
+	addr, err := net.ResolveUDPAddr(network, address)
+	if err != nil {
+		return nil, err
 	}
-	s, err := socket(family, syscall.SOCK_DGRAM, proto)
+	var family int
+	if addr.IP.To4() != nil {
+		family = syscall.AF_INET
+	}
+	if addr.IP.To16() != nil && addr.IP.To4() == nil {
+		family = syscall.AF_INET6
+	}
+	s, err := socket(family, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP)
 	if err != nil {
 		return nil, err
 	}
