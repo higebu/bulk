@@ -24,6 +24,10 @@ func listenPacket(network, address string) (*PacketConn, error) {
 	if addr.IP.To16() != nil && addr.IP.To4() == nil {
 		family = syscall.AF_INET6
 	}
+	if addr.IP == nil || addr.IP.IsUnspecified() {
+		family = syscall.AF_INET
+	}
+	println(network, address, family)
 	s, err := socket(family, syscall.SOCK_DGRAM, syscall.IPPROTO_UDP)
 	if err != nil {
 		return nil, err
