@@ -2,26 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build linux,amd64 netbsd,amd64
+// +build linux,amd64 linux,386 netbsd,amd64
 
 package bulk
 
 import (
 	"net"
-	"syscall"
 	"unsafe"
 )
-
-func getsockname(s uintptr) (net.IP, int, string, error) {
-	b := make([]byte, 128) // sysSizeofSockaddrStorage
-	l := uint32(128)
-	_, _, errno := syscall.RawSyscall(syscall.SYS_GETSOCKNAME, s, uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)))
-	if errno != 0 {
-		return nil, 0, "", error(errno)
-	}
-	ip, port, zone := ipPortZone((*byte)(unsafe.Pointer(&b[0])), l)
-	return ip, port, zone, nil
-}
 
 func (sa *sysSockaddrInet) ipPortZone() (net.IP, int, string) {
 	ip := net.IPv4(sa.Addr[0], sa.Addr[1], sa.Addr[2], sa.Addr[3])
@@ -63,10 +51,9 @@ func (msgs messages) scatter() []sysMmsghdr {
 		case *net.IPAddr:
 			m.Hdr.Name, m.Hdr.Namelen = msgSockaddr(addr.IP, 0, addr.Zone)
 		}
-		var iov sysIovec
-		iov.Base = (*byte)(unsafe.Pointer(&msgs[i].Data[0]))
-		iov.Len = uint64(len(msgs[i].Data))
-		m.Hdr.Iov = &iov
+		iov := &sysIovec{}
+		iov.set(msgs[i].Data)
+		m.Hdr.Iov = iov
 		m.Hdr.Iovlen = 1
 		mmsgs = append(mmsgs, m)
 	}
@@ -92,22 +79,4 @@ func (msgs *messages) gather(mmsgs []sysMmsghdr, laddr net.Addr) {
 		}
 		(*msgs)[i].N = int(mmsgs[i].Len)
 	}
-}
-
-func recvmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
-	l := uint32(len(mmsgs))
-	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
-	if errno != 0 {
-		return 0, error(errno)
-	}
-	return int(n), nil
-}
-
-func sendmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
-	l := uint32(len(mmsgs))
-	n, _, errno := syscall.Syscall6(sysSENDMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
-	if errno != 0 {
-		return 0, error(errno)
-	}
-	return int(n), nil
 }

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build !linux,!netbsd !amd64
+// +build !linux,!netbsd linux,!amd64,!386 netbsd,!amd64
 
 package bulk
 

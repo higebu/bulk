@@ -5,7 +5,6 @@
 package bulk_test
 
 import (
-	"runtime"
 	"testing"
 
 	"github.com/mikioh/bulk"
@@ -18,10 +17,7 @@ func BenchmarkReadWrite(b *testing.B) {
 	}
 	defer c.Close()
 
-	N := 16 // see UIO_MAXIOV or similar caps
-	if runtime.GOOS == "linux" {
-		N = 256
-	}
+	N := 16            // see UIO_MAXIOV or similar caps
 	const dataLen = 18 // UDP over IPv4 over Ethernet
 
 	var rb, wb bulk.Batch

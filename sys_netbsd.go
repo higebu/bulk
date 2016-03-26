@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build amd64
+// +build netbsd,amd64
 
 package bulk
 
@@ -10,11 +10,6 @@ import (
 	"net"
 	"syscall"
 	"unsafe"
-)
-
-const (
-	sysRECVMMSG = 475
-	sysSENDMMSG = 476
 )
 
 func socket(family, sotype, proto int) (int, error) {

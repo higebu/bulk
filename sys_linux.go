@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build amd64
+// +build linux,amd64 linux,386
 
 package bulk
 
@@ -11,11 +11,6 @@ import (
 	"os"
 	"syscall"
 	"unsafe"
-)
-
-const (
-	sysRECVMMSG = 299 // 337 for arm, 0x40000219 for 386
-	sysSENDMMSG = 307 // 345 for arm, 0x4000021a for 386
 )
 
 func socket(family, sotype, proto int) (int, error) {
