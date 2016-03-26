@@ -7,7 +7,6 @@
 package bulk
 
 import (
-	"fmt"
 	"net"
 	"syscall"
 )
@@ -52,20 +51,10 @@ func sockaddr(family int, ip net.IP, port int, zone string) (syscall.Sockaddr, e
 		if ip = ip.To16(); ip == nil || ip.To4() != nil {
 			return nil, net.InvalidAddrError("non-ipv6 address")
 		}
-		sa := &syscall.SockaddrInet6{Port: port, ZoneId: ifIB.zoneToUint32(zone)}
+		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(ifIB.nameToIndex(zone))}
 		copy(sa.Addr[:], ip)
 		return sa, nil
 	default:
 		return nil, net.InvalidAddrError("unexpected family")
 	}
-}
-
-func zoneToString(zone uint32) string {
-	if zone == 0 {
-		return ""
-	}
-	if ifi, err := net.InterfaceByIndex(int(zone)); err == nil {
-		return ifi.Name
-	}
-	return fmt.Sprintf("%d", zone)
 }
