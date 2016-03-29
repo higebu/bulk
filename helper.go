@@ -54,11 +54,14 @@ func (ifib *interfaceInfoBase) releaseSema() {
 	<-ifib.gate
 }
 
-func (ifib *interfaceInfoBase) nameToIndex(zone string) int {
+func (ifib *interfaceInfoBase) nameToIndex(name string) int {
+	if name == "" {
+		return 0
+	}
 	ifib.update()
 	ifib.RLock()
 	defer ifib.RUnlock()
-	index, ok := ifib.toIndex[zone]
+	index, ok := ifib.toIndex[name]
 	if !ok {
 		return 0
 	}
@@ -66,6 +69,9 @@ func (ifib *interfaceInfoBase) nameToIndex(zone string) int {
 }
 
 func (ifib *interfaceInfoBase) indexToName(index int) string {
+	if index == 0 {
+		return ""
+	}
 	ifib.update()
 	ifib.RLock()
 	defer ifib.RUnlock()
