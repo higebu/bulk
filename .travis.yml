@@ -13,6 +13,4 @@ script:
 - go test -v -run=none -bench=. -benchmem
 
 notifications:
-  email:
-    on_success: never
-    on_failure: never
+  email: false
