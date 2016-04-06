@@ -8,13 +8,14 @@ package bulk
 
 import (
 	"net"
+	"os"
 	"syscall"
 	"unsafe"
 )
 
 func socket(family, sotype, proto int) (int, error) {
 	syscall.ForkLock.RLock()
-	s, err = syscall.Socket(family, sotype, proto)
+	s, err := syscall.Socket(family, sotype, proto)
 	if err == nil {
 		syscall.CloseOnExec(s)
 	}
@@ -25,7 +26,7 @@ func socket(family, sotype, proto int) (int, error) {
 	return s, nil
 }
 
-func msgSockaddr(ip net.IP, port int) (*byte, uint32) {
+func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 	if ip.To4() != nil {
 		sa := sysSockaddrInet{Len: sysSizeofSockaddrInet, Family: syscall.AF_INET}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
