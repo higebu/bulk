@@ -43,7 +43,7 @@ func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 		return (*byte)(unsafe.Pointer(&sa)), sysSizeofSockaddrInet
 	}
 	if ip.To16() != nil && ip.To4() == nil {
-		sa := sysSockaddrInet6{Family: syscall.AF_INET6, Scope_id: uint32(ifIB.nameToIndex(zone))}
+		sa := sysSockaddrInet6{Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.nameToIndex(zone))}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip)

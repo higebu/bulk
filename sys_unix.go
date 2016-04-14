@@ -23,7 +23,7 @@ func (sa *sysSockaddrInet6) ipPortZone() (net.IP, int, string) {
 	copy(ip, sa.Addr[:])
 	p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 	port := int(p[0])<<8 + int(p[1])
-	return ip, port, ifIB.indexToName(int(sa.Scope_id))
+	return ip, port, zoneCache.indexToName(int(sa.Scope_id))
 }
 
 func ipPortZone(b *byte, l uint32) (net.IP, int, string) {

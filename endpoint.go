@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	ifIB.update()
+	zoneCache.init()
 }
 
 // A PacketConn represents a packet network endpoint.

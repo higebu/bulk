@@ -51,7 +51,7 @@ func sockaddr(family int, ip net.IP, port int, zone string) (syscall.Sockaddr, e
 		if ip = ip.To16(); ip == nil || ip.To4() != nil {
 			return nil, net.InvalidAddrError("non-ipv6 address")
 		}
-		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(ifIB.nameToIndex(zone))}
+		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(zoneCache.nameToIndex(zone))}
 		copy(sa.Addr[:], ip)
 		return sa, nil
 	default:

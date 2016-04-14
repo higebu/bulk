@@ -5,95 +5,89 @@
 package bulk
 
 import (
+	"fmt"
 	"net"
+	"strconv"
 	"sync"
 	"time"
 )
 
-type interfaceInfoBase struct {
-	sync.Once
-
-	gate chan struct{}
-	sync.RWMutex
+type ipv6ZoneCache struct {
+	throttle    chan struct{}
 	lastFetched time.Time
-	toIndex     map[string]int
-	toName      map[int]string
+
+	sync.RWMutex
+	toIndex map[string]int
+	toName  map[int]string
 }
 
-var ifIB interfaceInfoBase
+var zoneCache ipv6ZoneCache
 
-func (ifib *interfaceInfoBase) init() {
-	ifib.gate = make(chan struct{}, 1)
-	ifib.toIndex = make(map[string]int)
-	ifib.toName = make(map[int]string)
-	ifib.fetch()
-	ifib.lastFetched = time.Now()
+func (zc *ipv6ZoneCache) init() {
+	zc.throttle = make(chan struct{}, 1)
+	zc.toIndex = make(map[string]int)
+	zc.toName = make(map[int]string)
 }
 
-func (ifib *interfaceInfoBase) fetch() {
-	ift, err := net.Interfaces()
-	if err != nil {
-		return
-	}
-	for _, ifi := range ift {
-		ifib.toIndex[ifi.Name] = ifi.Index
-		ifib.toName[ifi.Index] = ifi.Name
-	}
-}
-
-func (ifib *interfaceInfoBase) tryAcquireSema() bool {
+func (zc *ipv6ZoneCache) tryAcquireSema() bool {
 	select {
-	case ifib.gate <- struct{}{}:
+	case zc.throttle <- struct{}{}:
 		return true
 	default:
 		return false
 	}
 }
 
-func (ifib *interfaceInfoBase) releaseSema() {
-	<-ifib.gate
+func (zc *ipv6ZoneCache) releaseSema() {
+	<-zc.throttle
 }
 
-func (ifib *interfaceInfoBase) nameToIndex(name string) int {
+func (zc *ipv6ZoneCache) nameToIndex(name string) int {
 	if name == "" {
 		return 0
 	}
-	ifib.update()
-	ifib.RLock()
-	defer ifib.RUnlock()
-	index, ok := ifib.toIndex[name]
+	zc.update()
+	zc.RLock()
+	defer zc.RUnlock()
+	index, ok := zc.toIndex[name]
 	if !ok {
-		return 0
+		index, _ = strconv.Atoi(name)
 	}
 	return index
 }
 
-func (ifib *interfaceInfoBase) indexToName(index int) string {
+func (zc *ipv6ZoneCache) indexToName(index int) string {
 	if index == 0 {
 		return ""
 	}
-	ifib.update()
-	ifib.RLock()
-	defer ifib.RUnlock()
-	name, ok := ifib.toName[index]
+	zc.update()
+	zc.RLock()
+	defer zc.RUnlock()
+	name, ok := zc.toName[index]
 	if !ok {
-		return ""
+		name = fmt.Sprintf("%d", index)
 	}
 	return name
 }
 
-func (ifib *interfaceInfoBase) update() {
-	ifib.Once.Do(ifib.init)
-	if !ifib.tryAcquireSema() {
+func (zc *ipv6ZoneCache) update() {
+	if !zc.tryAcquireSema() {
 		return
 	}
-	defer ifib.releaseSema()
+	defer zc.releaseSema()
 	now := time.Now()
-	if ifib.lastFetched.After(now.Add(-60 * time.Second)) {
+	if zc.lastFetched.After(now.Add(-60 * time.Second)) {
 		return
 	}
-	ifib.lastFetched = now
-	ifib.Lock()
-	ifib.fetch()
-	ifib.Unlock()
+	zc.lastFetched = now
+	zc.Lock()
+	defer zc.Unlock()
+	ift, err := net.Interfaces()
+	if err != nil {
+		return
+	}
+	for _, ifi := range ift {
+		zc.toIndex[ifi.Name] = ifi.Index
+		zc.toName[ifi.Index] = ifi.Name
+	}
 }
