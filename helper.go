@@ -64,6 +64,8 @@ func (zc *ipv6ZoneCache) update() {
 	if err != nil {
 		return
 	}
+	zc.toIndex = make(map[string]int, len(ift))
+	zc.toName = make(map[int]string, len(ift))
 	for _, ifi := range ift {
 		delete(zc.toIndex, ifi.Name)
 		zc.toIndex[ifi.Name] = ifi.Index
