@@ -13,33 +13,15 @@ import (
 )
 
 type ipv6ZoneCache struct {
-	throttle    chan struct{}
-	lastFetched time.Time
-
 	sync.RWMutex
-	toIndex map[string]int
-	toName  map[int]string
+	lastFetched time.Time
+	toIndex     map[string]int
+	toName      map[int]string
 }
 
-var zoneCache ipv6ZoneCache
-
-func (zc *ipv6ZoneCache) init() {
-	zc.throttle = make(chan struct{}, 1)
-	zc.toIndex = make(map[string]int)
-	zc.toName = make(map[int]string)
-}
-
-func (zc *ipv6ZoneCache) tryAcquireSema() bool {
-	select {
-	case zc.throttle <- struct{}{}:
-		return true
-	default:
-		return false
-	}
-}
-
-func (zc *ipv6ZoneCache) releaseSema() {
-	<-zc.throttle
+var zoneCache = ipv6ZoneCache{
+	toIndex: make(map[string]int),
+	toName:  make(map[int]string),
 }
 
 func (zc *ipv6ZoneCache) nameToIndex(name string) int {
@@ -71,23 +53,21 @@ func (zc *ipv6ZoneCache) indexToName(index int) string {
 }
 
 func (zc *ipv6ZoneCache) update() {
-	if !zc.tryAcquireSema() {
-		return
-	}
-	defer zc.releaseSema()
+	zc.Lock()
+	defer zc.Unlock()
 	now := time.Now()
 	if zc.lastFetched.After(now.Add(-60 * time.Second)) {
 		return
 	}
 	zc.lastFetched = now
-	zc.Lock()
-	defer zc.Unlock()
 	ift, err := net.Interfaces()
 	if err != nil {
 		return
 	}
 	for _, ifi := range ift {
+		delete(zc.toIndex, ifi.Name)
 		zc.toIndex[ifi.Name] = ifi.Index
+		delete(zc.toName, ifi.Index)
 		zc.toName[ifi.Index] = ifi.Name
 	}
 }

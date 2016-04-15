@@ -20,10 +20,6 @@ var (
 	errOpNoSupport = errors.New("operation not supported")
 )
 
-func init() {
-	zoneCache.init()
-}
-
 // A PacketConn represents a packet network endpoint.
 type PacketConn struct {
 	mu    sync.RWMutex
