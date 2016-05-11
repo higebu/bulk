@@ -36,7 +36,7 @@ func sockaddr(family int, ip net.IP, port int, zone string) (syscall.Sockaddr, e
 			ip = net.IPv4zero
 		}
 		if ip = ip.To4(); ip == nil {
-			return nil, net.InvalidAddrError("non-ipv4 address")
+			return nil, net.InvalidAddrError("non-IPv4 address")
 		}
 		sa := &syscall.SockaddrInet4{Port: port}
 		copy(sa.Addr[:], ip)
@@ -49,7 +49,7 @@ func sockaddr(family int, ip net.IP, port int, zone string) (syscall.Sockaddr, e
 			ip = net.IPv6unspecified
 		}
 		if ip = ip.To16(); ip == nil || ip.To4() != nil {
-			return nil, net.InvalidAddrError("non-ipv6 address")
+			return nil, net.InvalidAddrError("non-IPv6 address")
 		}
 		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(zoneCache.nameToIndex(zone))}
 		copy(sa.Addr[:], ip)
