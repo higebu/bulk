@@ -23,8 +23,8 @@ const (
 	sysMSG_DONTWAIT   = C.MSG_DONTWAIT
 	sysMSG_WAITFORONE = C.MSG_WAITFORONE
 
-	sysSizeofSockaddrInet  = C.sizeof_struct_sockaddr_in
-	sysSizeofSockaddrInet6 = C.sizeof_struct_sockaddr_in6
+	sizeofSockaddrInet  = C.sizeof_struct_sockaddr_in
+	sizeofSockaddrInet6 = C.sizeof_struct_sockaddr_in6
 )
 
 type sysSockaddrInet C.struct_sockaddr_in

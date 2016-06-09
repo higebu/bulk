@@ -24,7 +24,7 @@ const (
 func socketcall(call int, a0, a1, a2, a3, a4, a5 uintptr) (int, syscall.Errno)
 
 func getsockname(s uintptr) (net.IP, int, string, error) {
-	b := make([]byte, 128) // sysSizeofSockaddrStorage
+	b := make([]byte, 128) // sizeofSockaddrStorage
 	l := uint32(128)
 	_, errno := socketcall(sysGETSOCKNAME, s, uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)), 0, 0, 0)
 	if errno != 0 {

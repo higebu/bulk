@@ -21,7 +21,7 @@ const (
 )
 
 func getsockname(s uintptr) (net.IP, int, string, error) {
-	b := make([]byte, 128) // sysSizeofSockaddrStorage
+	b := make([]byte, 128) // sizeofSockaddrStorage
 	l := uint32(128)
 	_, _, errno := syscall.RawSyscall(syscall.SYS_GETSOCKNAME, s, uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&l)))
 	if errno != 0 {

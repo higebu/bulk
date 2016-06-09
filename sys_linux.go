@@ -40,14 +40,14 @@ func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip.To4())
-		return (*byte)(unsafe.Pointer(&sa)), sysSizeofSockaddrInet
+		return (*byte)(unsafe.Pointer(&sa)), sizeofSockaddrInet
 	}
 	if ip.To16() != nil && ip.To4() == nil {
 		sa := sysSockaddrInet6{Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.nameToIndex(zone))}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip)
-		return (*byte)(unsafe.Pointer(&sa)), sysSizeofSockaddrInet6
+		return (*byte)(unsafe.Pointer(&sa)), sizeofSockaddrInet6
 	}
 	return nil, 0
 }

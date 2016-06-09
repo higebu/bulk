@@ -27,11 +27,11 @@ func (sa *sysSockaddrInet6) ipPortZone() (net.IP, int, string) {
 }
 
 func ipPortZone(b *byte, l uint32) (net.IP, int, string) {
-	if l == sysSizeofSockaddrInet {
+	if l == sizeofSockaddrInet {
 		sa := (*sysSockaddrInet)(unsafe.Pointer(b))
 		return sa.ipPortZone()
 	}
-	if l == sysSizeofSockaddrInet6 {
+	if l == sizeofSockaddrInet6 {
 		sa := (*sysSockaddrInet6)(unsafe.Pointer(b))
 		return sa.ipPortZone()
 	}

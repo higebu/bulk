@@ -7,8 +7,8 @@ const (
 	sysMSG_DONTWAIT   = 0x80
 	sysMSG_WAITFORONE = 0x2000
 
-	sysSizeofSockaddrInet  = 0x10
-	sysSizeofSockaddrInet6 = 0x1c
+	sizeofSockaddrInet  = 0x10
+	sizeofSockaddrInet6 = 0x1c
 )
 
 type sysSockaddrInet struct {
