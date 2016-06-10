@@ -27,11 +27,11 @@ func listenPacket(network, address string) (*PacketConn, error) {
 		syscall.Close(s)
 		return nil, err
 	}
-	if err := syscall.Bind(s, sa); err != nil {
+	if err := syscall.Bind(int(s), sa); err != nil {
 		syscall.Close(s)
 		return nil, os.NewSyscallError("bind", err)
 	}
-	ip, port, zone, err := getsockname(uintptr(s))
+	ip, port, zone, err := getsockname(s)
 	if err != nil {
 		syscall.Close(s)
 		return nil, os.NewSyscallError("getsockname", err)
