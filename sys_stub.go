@@ -18,6 +18,6 @@ func (msgs *messages) gather(mmsgs []sysMmsghdr, laddr net.Addr) {}
 func recvmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) { return 0, errOpNoSupport }
 func sendmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) { return 0, errOpNoSupport }
 
-func socket(family, sotype, proto int) (int, error)      { return 0, errOpNoSupport }
+func socket(family, sotype, proto int) (uintptr, error)  { return 0, errOpNoSupport }
 func getsockname(s uintptr) (net.IP, int, string, error) { return nil, 0, "", errOpNoSupport }
 func soclose(s uintptr) error                            { return errOpNoSupport }

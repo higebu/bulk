@@ -24,16 +24,16 @@ func listenPacket(network, address string) (*PacketConn, error) {
 	}
 	sa, err := sockaddr(family, addr.IP, addr.Port, addr.Zone)
 	if err != nil {
-		syscall.Close(s)
+		syscall.Close(int(s))
 		return nil, err
 	}
 	if err := syscall.Bind(int(s), sa); err != nil {
-		syscall.Close(s)
+		syscall.Close(int(s))
 		return nil, os.NewSyscallError("bind", err)
 	}
 	ip, port, zone, err := getsockname(s)
 	if err != nil {
-		syscall.Close(s)
+		syscall.Close(int(s))
 		return nil, os.NewSyscallError("getsockname", err)
 	}
 	c := PacketConn{s: s}

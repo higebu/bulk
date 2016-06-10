@@ -13,14 +13,14 @@ import (
 	"unsafe"
 )
 
-func socket(family, sotype, proto int) (int, error) {
+func socket(family, sotype, proto int) (uintptr, error) {
 	s, err := syscall.Socket(family, sotype|syscall.SOCK_CLOEXEC, proto)
 	switch err {
 	case nil:
-		return s, nil
+		return uintptr(s), nil
 	case syscall.EINVAL, syscall.EPROTONOSUPPORT:
 	default:
-		return -1, os.NewSyscallError("socket", err)
+		return ^uintptr(0), os.NewSyscallError("socket", err)
 	}
 	syscall.ForkLock.RLock()
 	s, err = syscall.Socket(family, sotype, proto)
@@ -29,9 +29,9 @@ func socket(family, sotype, proto int) (int, error) {
 	}
 	syscall.ForkLock.RUnlock()
 	if err != nil {
-		return -1, os.NewSyscallError("socket", err)
+		return ^uintptr(0), os.NewSyscallError("socket", err)
 	}
-	return s, nil
+	return uintptr(s), nil
 }
 
 func soclose(s uintptr) error { return syscall.Close(int(s)) }
