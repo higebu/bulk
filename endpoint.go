@@ -15,9 +15,6 @@ import (
 var (
 	_ net.PacketConn = &PacketConn{}
 
-	intSize    = 32 << (^uint(0) >> 63)
-	maxUintptr = uintptr(1<<uint(intSize) - 1)
-
 	errClosing     = errors.New("use of closed network connection")
 	errOpNoSupport = errors.New("operation not supported")
 )
@@ -47,7 +44,7 @@ func (c *PacketConn) Close() error {
 		return errClosing
 	}
 	err := soclose(c.s)
-	c.s = maxUintptr
+	c.s ^= uintptr(0)
 	if err != nil {
 		return os.NewSyscallError("close", err)
 	}
