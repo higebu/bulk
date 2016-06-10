@@ -9,12 +9,14 @@ import (
 	"net"
 	"os"
 	"sync"
-	"syscall"
 	"time"
 )
 
 var (
 	_ net.PacketConn = &PacketConn{}
+
+	intSize    = 32 << (^uint(0) >> 63)
+	maxUintptr = uintptr(1<<uint(intSize) - 1)
 
 	errClosing     = errors.New("use of closed network connection")
 	errOpNoSupport = errors.New("operation not supported")
@@ -23,7 +25,7 @@ var (
 // A PacketConn represents a packet network endpoint.
 type PacketConn struct {
 	mu    sync.RWMutex
-	s     int
+	s     uintptr
 	laddr net.Addr
 }
 
@@ -44,8 +46,8 @@ func (c *PacketConn) Close() error {
 	if c.s < 0 {
 		return errClosing
 	}
-	err := syscall.Close(int(c.s))
-	c.s = -1
+	err := soclose(c.s)
+	c.s = maxUintptr
 	if err != nil {
 		return os.NewSyscallError("close", err)
 	}
@@ -79,7 +81,7 @@ func (c *PacketConn) SetWriteDeadline(t time.Time) error {
 // The result of operation will be stored in b when no error occurs.
 // The batch b must be scatterd before operation.
 func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
-	var s int
+	var s uintptr
 	c.mu.RLock()
 	if c.s < 0 {
 		c.mu.RUnlock()
@@ -87,7 +89,7 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := recvmmsg(uintptr(s), b.mmsgs, sysMSG_WAITFORONE)
+	n, err := recvmmsg(s, b.mmsgs, sysMSG_WAITFORONE)
 	if err != nil {
 		return 0, err
 	}
@@ -100,7 +102,7 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 // The result of operation will be stored in b when no error occurs.
 // The batch b must be scatterd before operation.
 func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
-	var s int
+	var s uintptr
 	c.mu.RLock()
 	if c.s < 0 {
 		c.mu.RUnlock()
@@ -108,7 +110,7 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	}
 	s = c.s
 	c.mu.RUnlock()
-	n, err := sendmmsg(uintptr(s), b.mmsgs, 0)
+	n, err := sendmmsg(s, b.mmsgs, 0)
 	if err != nil {
 		return 0, err
 	}

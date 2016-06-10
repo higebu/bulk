@@ -34,6 +34,8 @@ func socket(family, sotype, proto int) (int, error) {
 	return s, nil
 }
 
+func soclose(s uintptr) error { return syscall.Close(int(s)) }
+
 func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 	if ip.To4() != nil {
 		sa := sysSockaddrInet{Family: syscall.AF_INET}

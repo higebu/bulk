@@ -43,3 +43,5 @@ func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 	}
 	return nil, 0
 }
+
+func soclose(s uintptr) error { return syscall.Close(int(s)) }

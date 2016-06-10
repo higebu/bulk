@@ -51,3 +51,5 @@ func sendmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
 	}
 	return int(n), nil
 }
+
+func soclose(s uintptr) error { return syscall.Close(int(s)) }
