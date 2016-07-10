@@ -24,7 +24,7 @@ var zoneCache = ipv6ZoneCache{
 	toName:  make(map[int]string),
 }
 
-func (zc *ipv6ZoneCache) nameToIndex(name string) int {
+func (zc *ipv6ZoneCache) index(name string) int {
 	if name == "" {
 		return 0
 	}
@@ -38,7 +38,7 @@ func (zc *ipv6ZoneCache) nameToIndex(name string) int {
 	return index
 }
 
-func (zc *ipv6ZoneCache) indexToName(index int) string {
+func (zc *ipv6ZoneCache) name(index int) string {
 	if index == 0 {
 		return ""
 	}
@@ -67,9 +67,7 @@ func (zc *ipv6ZoneCache) update() {
 	zc.toIndex = make(map[string]int, len(ift))
 	zc.toName = make(map[int]string, len(ift))
 	for _, ifi := range ift {
-		delete(zc.toIndex, ifi.Name)
 		zc.toIndex[ifi.Name] = ifi.Index
-		delete(zc.toName, ifi.Index)
 		zc.toName[ifi.Index] = ifi.Name
 	}
 }

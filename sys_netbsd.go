@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build netbsd,amd64
+// +build netbsd,amd64 netbsd,386
 
 package bulk
 
@@ -37,7 +37,7 @@ func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 		return (*byte)(unsafe.Pointer(&sa)), sizeofSockaddrInet
 	}
 	if ip.To16() != nil && ip.To4() == nil {
-		sa := sysSockaddrInet6{Len: sizeofSockaddrInet6, Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.nameToIndex(zone))}
+		sa := sysSockaddrInet6{Len: sizeofSockaddrInet6, Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.index(zone))}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip)

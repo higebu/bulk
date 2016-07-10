@@ -35,26 +35,25 @@ func sockaddr(family int, ip net.IP, port int, zone string) (syscall.Sockaddr, e
 		if len(ip) == 0 {
 			ip = net.IPv4zero
 		}
-		if ip = ip.To4(); ip == nil {
-			return nil, net.InvalidAddrError("non-IPv4 address")
+		ip4 := ip.To4()
+		if ip4 == nil {
+			return nil, &net.AddrError{Err: "non-IPv4 address", Addr: ip.String()}
 		}
 		sa := &syscall.SockaddrInet4{Port: port}
-		copy(sa.Addr[:], ip)
+		copy(sa.Addr[:], ip4)
 		return sa, nil
 	case syscall.AF_INET6:
-		if len(ip) == 0 {
+		if len(ip) == 0 || ip.Equal(net.IPv4zero) {
 			ip = net.IPv6unspecified
 		}
-		if ip.Equal(net.IPv4zero) {
-			ip = net.IPv6unspecified
+		ip6 := ip.To16()
+		if ip6 == nil {
+			return nil, &net.AddrError{Err: "non-IPv6 address", Addr: ip.String()}
 		}
-		if ip = ip.To16(); ip == nil || ip.To4() != nil {
-			return nil, net.InvalidAddrError("non-IPv6 address")
-		}
-		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(zoneCache.nameToIndex(zone))}
-		copy(sa.Addr[:], ip)
+		sa := &syscall.SockaddrInet6{Port: port, ZoneId: uint32(zoneCache.index(zone))}
+		copy(sa.Addr[:], ip6)
 		return sa, nil
 	default:
-		return nil, net.InvalidAddrError("unexpected family")
+		return nil, &net.AddrError{Err: "invalid address family", Addr: ip.String()}
 	}
 }

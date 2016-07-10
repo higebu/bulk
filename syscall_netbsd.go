@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+// +build netbsd,amd64 netbsd,386
+
 package bulk
 
 import (
@@ -9,11 +11,6 @@ import (
 	"syscall"
 	"unsafe"
 )
-
-func (iov *sysIovec) set(b []byte) {
-	iov.Base = (*byte)(unsafe.Pointer(&b[0]))
-	iov.Len = uint64(len(b))
-}
 
 const (
 	sysRECVMMSG = 475

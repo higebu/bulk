@@ -2,7 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build go1.2
+package bulk
 
-TEXT	·socketcall(SB),4,$0-36
-	JMP	syscall·socketcall(SB)
+import "unsafe"
+
+func (iov *sysIovec) set(b []byte) {
+	iov.Base = (*byte)(unsafe.Pointer(&b[0]))
+	iov.Len = uint32(len(b))
+}
