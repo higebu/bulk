@@ -40,7 +40,7 @@ func (c *PacketConn) WriteTo(b []byte, dst net.Addr) (int, error) {
 func (c *PacketConn) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	if c.s < 0 {
+	if c.s == ^uintptr(0) {
 		return errClosing
 	}
 	err := soclose(c.s)
@@ -80,7 +80,7 @@ func (c *PacketConn) SetWriteDeadline(t time.Time) error {
 func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	var s uintptr
 	c.mu.RLock()
-	if c.s < 0 {
+	if c.s == ^uintptr(0) {
 		c.mu.RUnlock()
 		return 0, errClosing
 	}
@@ -101,7 +101,7 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	var s uintptr
 	c.mu.RLock()
-	if c.s < 0 {
+	if c.s == ^uintptr(0) {
 		c.mu.RUnlock()
 		return 0, errClosing
 	}
