@@ -44,7 +44,7 @@ func (c *PacketConn) Close() error {
 		return errClosing
 	}
 	err := soclose(c.s)
-	c.s ^= uintptr(0)
+	c.s = ^uintptr(0)
 	if err != nil {
 		return os.NewSyscallError("close", err)
 	}
