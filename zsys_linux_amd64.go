@@ -11,14 +11,14 @@ const (
 	sizeofSockaddrInet6 = 0x1c
 )
 
-type sysSockaddrInet struct {
+type sockaddrInet struct {
 	Family uint16
 	Port   uint16
 	Addr   [4]byte /* in_addr */
 	X__pad [8]uint8
 }
 
-type sysSockaddrInet6 struct {
+type sockaddrInet6 struct {
 	Family   uint16
 	Port     uint16
 	Flowinfo uint32
@@ -26,17 +26,17 @@ type sysSockaddrInet6 struct {
 	Scope_id uint32
 }
 
-type sysMmsghdr struct {
-	Hdr       sysMsghdr
+type mmsghdr struct {
+	Hdr       msghdr
 	Len       uint32
 	Pad_cgo_0 [4]byte
 }
 
-type sysMsghdr struct {
+type msghdr struct {
 	Name       *byte
 	Namelen    uint32
 	Pad_cgo_0  [4]byte
-	Iov        *sysIovec
+	Iov        *iovec
 	Iovlen     uint64
 	Control    *byte
 	Controllen uint64
@@ -44,12 +44,12 @@ type sysMsghdr struct {
 	Pad_cgo_1  [4]byte
 }
 
-type sysIovec struct {
+type iovec struct {
 	Base *byte
 	Len  uint64
 }
 
-type sysTimespec struct {
+type timespec struct {
 	Sec  int64
 	Nsec int64
 }

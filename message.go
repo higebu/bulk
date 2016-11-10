@@ -25,7 +25,7 @@ type messages []Message
 type Batch struct {
 	Messages []Message
 
-	mmsgs []sysMmsghdr
+	mmsgs []mmsghdr
 }
 
 // Scatter scatters b on internal data for the following bacth read,

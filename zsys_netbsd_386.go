@@ -11,7 +11,7 @@ const (
 	sizeofSockaddrInet6 = 0x1c
 )
 
-type sysSockaddrInet struct {
+type sockaddrInet struct {
 	Len    uint8
 	Family uint8
 	Port   uint16
@@ -19,7 +19,7 @@ type sysSockaddrInet struct {
 	Zero   [8]int8
 }
 
-type sysSockaddrInet6 struct {
+type sockaddrInet6 struct {
 	Len      uint8
 	Family   uint8
 	Port     uint16
@@ -28,27 +28,27 @@ type sysSockaddrInet6 struct {
 	Scope_id uint32
 }
 
-type sysMmsghdr struct {
-	Hdr sysMsghdr
+type mmsghdr struct {
+	Hdr msghdr
 	Len uint32
 }
 
-type sysMsghdr struct {
+type msghdr struct {
 	Name       *byte
 	Namelen    uint32
-	Iov        *sysIovec
+	Iov        *iovec
 	Iovlen     int32
 	Control    *byte
 	Controllen uint32
 	Flags      int32
 }
 
-type sysIovec struct {
+type iovec struct {
 	Base *byte
 	Len  uint32
 }
 
-type sysTimespec struct {
+type timespec struct {
 	Sec  int64
 	Nsec int32
 }

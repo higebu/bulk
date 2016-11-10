@@ -27,14 +27,14 @@ const (
 	sizeofSockaddrInet6 = C.sizeof_struct_sockaddr_in6
 )
 
-type sysSockaddrInet C.struct_sockaddr_in
+type sockaddrInet C.struct_sockaddr_in
 
-type sysSockaddrInet6 C.struct_sockaddr_in6
+type sockaddrInet6 C.struct_sockaddr_in6
 
-type sysMmsghdr C.struct_mmsghdr
+type mmsghdr C.struct_mmsghdr
 
-type sysMsghdr C.struct_msghdr
+type msghdr C.struct_msghdr
 
-type sysIovec C.struct_iovec
+type iovec C.struct_iovec
 
-type sysTimespec C.struct_timespec
+type timespec C.struct_timespec

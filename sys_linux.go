@@ -38,14 +38,14 @@ func soclose(s uintptr) error { return syscall.Close(int(s)) }
 
 func msgSockaddr(ip net.IP, port int, zone string) (*byte, uint32) {
 	if ip.To4() != nil {
-		sa := sysSockaddrInet{Family: syscall.AF_INET}
+		sa := sockaddrInet{Family: syscall.AF_INET}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip.To4())
 		return (*byte)(unsafe.Pointer(&sa)), sizeofSockaddrInet
 	}
 	if ip.To16() != nil && ip.To4() == nil {
-		sa := sysSockaddrInet6{Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.index(zone))}
+		sa := sockaddrInet6{Family: syscall.AF_INET6, Scope_id: uint32(zoneCache.index(zone))}
 		p := (*[2]byte)(unsafe.Pointer(&sa.Port))
 		p[0], p[1] = byte(port>>8), byte(port)
 		copy(sa.Addr[:], ip)

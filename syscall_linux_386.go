@@ -10,7 +10,7 @@ import (
 	"unsafe"
 )
 
-func (iov *sysIovec) set(b []byte) {
+func (iov *iovec) set(b []byte) {
 	iov.Base = (*byte)(unsafe.Pointer(&b[0]))
 	iov.Len = uint32(len(b))
 }
@@ -34,7 +34,7 @@ func getsockname(s uintptr) (net.IP, int, string, error) {
 	return ip, port, zone, nil
 }
 
-func recvmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
+func recvmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) {
 	l := uint32(len(mmsgs))
 	n, errno := socketcall(sysRECVMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
 	if errno != 0 {
@@ -43,7 +43,7 @@ func recvmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
 	return int(n), nil
 }
 
-func sendmmsg(s uintptr, mmsgs []sysMmsghdr, flags uint32) (int, error) {
+func sendmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) {
 	l := uint32(len(mmsgs))
 	n, errno := socketcall(sysSENDMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)
 	if errno != 0 {

@@ -6,7 +6,7 @@ package bulk
 
 import "unsafe"
 
-func (iov *sysIovec) set(b []byte) {
+func (iov *iovec) set(b []byte) {
 	iov.Base = (*byte)(unsafe.Pointer(&b[0]))
 	iov.Len = uint64(len(b))
 }
