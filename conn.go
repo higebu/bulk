@@ -12,12 +12,7 @@ import (
 	"time"
 )
 
-var (
-	_ net.PacketConn = &PacketConn{}
-
-	errClosing     = errors.New("use of closed network connection")
-	errOpNoSupport = errors.New("operation not supported")
-)
+var _ net.PacketConn = &PacketConn{}
 
 // A PacketConn represents a packet network endpoint.
 type PacketConn struct {
@@ -28,12 +23,12 @@ type PacketConn struct {
 
 // ReadFrom reads a message from the endpoint.
 func (c *PacketConn) ReadFrom(b []byte) (int, net.Addr, error) {
-	return 0, nil, errOpNoSupport
+	return 0, nil, errors.New("operation not supported")
 }
 
 // WriteTo writes the message b to dst.
 func (c *PacketConn) WriteTo(b []byte, dst net.Addr) (int, error) {
-	return 0, errOpNoSupport
+	return 0, errors.New("operation not supported")
 }
 
 // Close closes the endpoint.
@@ -41,7 +36,7 @@ func (c *PacketConn) Close() error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	if c.s == ^uintptr(0) {
-		return errClosing
+		return errors.New("use of closed network connection")
 	}
 	err := soclose(c.s)
 	c.s = ^uintptr(0)
@@ -59,19 +54,19 @@ func (c *PacketConn) LocalAddr() net.Addr {
 // SetDeadline sets the read and write deadlines associated with the
 // endpoint.
 func (c *PacketConn) SetDeadline(t time.Time) error {
-	return errOpNoSupport
+	return errors.New("operation not supported")
 }
 
 // SetReadDeadline sets the read deadline associated with the
 // endpoint.
 func (c *PacketConn) SetReadDeadline(t time.Time) error {
-	return errOpNoSupport
+	return errors.New("operation not supported")
 }
 
 // SetWriteDeadline sets the write deadline associated with the
 // endpoint.
 func (c *PacketConn) SetWriteDeadline(t time.Time) error {
-	return errOpNoSupport
+	return errors.New("operation not supported")
 }
 
 // ReadBatch reads a batch of messages.
@@ -82,7 +77,7 @@ func (c *PacketConn) ReadBatch(b *Batch) (int, error) {
 	c.mu.RLock()
 	if c.s == ^uintptr(0) {
 		c.mu.RUnlock()
-		return 0, errClosing
+		return 0, errors.New("use of closed network connection")
 	}
 	s = c.s
 	c.mu.RUnlock()
@@ -103,7 +98,7 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 	c.mu.RLock()
 	if c.s == ^uintptr(0) {
 		c.mu.RUnlock()
-		return 0, errClosing
+		return 0, errors.New("use of closed network connection")
 	}
 	s = c.s
 	c.mu.RUnlock()

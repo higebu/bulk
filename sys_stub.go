@@ -6,7 +6,10 @@
 
 package bulk
 
-import "net"
+import (
+	"errors"
+	"net"
+)
 
 const sysMSG_WAITFORONE = 0
 
@@ -15,9 +18,22 @@ type mmsghdr struct{}
 func (msgs messages) scatter() []mmsghdr                      { return nil }
 func (msgs *messages) gather(mmsgs []mmsghdr, laddr net.Addr) {}
 
-func recvmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) { return 0, errOpNoSupport }
-func sendmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) { return 0, errOpNoSupport }
+func recvmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) {
+	return 0, errors.New("operation not supported")
+}
 
-func socket(family, sotype, proto int) (uintptr, error)  { return 0, errOpNoSupport }
-func getsockname(s uintptr) (net.IP, int, string, error) { return nil, 0, "", errOpNoSupport }
-func soclose(s uintptr) error                            { return errOpNoSupport }
+func sendmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) {
+	return 0, errors.New("operation not supported")
+}
+
+func socket(family, sotype, proto int) (uintptr, error) {
+	return 0, errors.New("operation not supported")
+}
+
+func getsockname(s uintptr) (net.IP, int, string, error) {
+	return nil, 0, "", errors.New("operation not supported")
+}
+
+func soclose(s uintptr) error {
+	return errors.New("operation not supported")
+}

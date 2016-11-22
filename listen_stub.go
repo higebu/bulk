@@ -6,4 +6,8 @@
 
 package bulk
 
-func listenPacket(network, address string) (*PacketConn, error) { return nil, errOpNoSupport }
+import "errors"
+
+func listenPacket(network, address string) (*PacketConn, error) {
+	return nil, errors.New("operation not supported")
+}
