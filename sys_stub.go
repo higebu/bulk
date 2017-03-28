@@ -34,6 +34,10 @@ func getsockname(s uintptr) (net.IP, int, string, error) {
 	return nil, 0, "", errors.New("operation not supported")
 }
 
+func getpeername(s uintptr) (net.IP, int, string, error) {
+	return nil, 0, "", errors.New("operation not supported")
+}
+
 func soclose(s uintptr) error {
 	return errors.New("operation not supported")
 }

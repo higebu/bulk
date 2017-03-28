@@ -19,6 +19,7 @@ type PacketConn struct {
 	mu    sync.RWMutex
 	s     uintptr
 	laddr net.Addr
+	raddr net.Addr
 }
 
 // ReadFrom reads a message from the endpoint.
@@ -116,4 +117,8 @@ func (c *PacketConn) WriteBatch(b *Batch) (int, error) {
 // See net.Dial for the syntax of address.
 func ListenPacket(network, address string) (*PacketConn, error) {
 	return listenPacket(network, address)
+}
+
+func DialPacket(network string, laddr, raddr *net.UDPAddr) (*PacketConn, error) {
+	return dialPacket(network, laddr, raddr)
 }

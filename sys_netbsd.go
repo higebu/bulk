@@ -62,6 +62,17 @@ func getsockname(s uintptr) (net.IP, int, string, error) {
 	return ip, port, zone, nil
 }
 
+func getpeername(s uintptr) (net.IP, int, string, error) {
+	b := make([]byte, 128) // sizeofSockaddrStorage
+	r := uint32(128)
+	_, _, errno := syscall.RawSyscall(syscall.SYS_GETPEERNAME, s, uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&r)))
+	if errno != 0 {
+		return nil, 0, "", error(errno)
+	}
+	ip, port, zone := ipPortZone((*byte)(unsafe.Pointer(&b[0])), r)
+	return ip, port, zone, nil
+}
+
 func recvmmsg(s uintptr, mmsgs []mmsghdr, flags uint32) (int, error) {
 	l := uint32(len(mmsgs))
 	n, _, errno := syscall.Syscall6(sysRECVMMSG, s, uintptr(unsafe.Pointer(&mmsgs[0])), uintptr(l), uintptr(flags), 0, 0)

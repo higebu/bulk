@@ -7,9 +7,10 @@
 package bulk_test
 
 import (
+	"net"
 	"testing"
 
-	"github.com/mikioh/bulk"
+	"github.com/higebu/bulk"
 )
 
 func BenchmarkReadWrite(b *testing.B) {
@@ -43,6 +44,53 @@ func BenchmarkReadWrite(b *testing.B) {
 	rb.Scatter()
 	for i := 0; i < b.N; i++ {
 		if _, err := c.ReadBatch(&rb); err != nil {
+			b.Fatal(err)
+		}
+		rb.Reset()
+	}
+}
+
+func BenchmarkReadWriteWithDial(b *testing.B) {
+	s, err := bulk.ListenPacket("udp4", "127.0.0.1:0")
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer s.Close()
+
+	laddr, err := net.ResolveUDPAddr("udp4", "127.0.0.1:0")
+	if err != nil {
+		b.Fatal(err)
+	}
+	c, err := bulk.DialPacket("udp4", laddr, s.LocalAddr().(*net.UDPAddr))
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer c.Close()
+
+	N := 16            // see UIO_MAXIOV or similar caps
+	const dataLen = 18 // UDP over IPv4 over Ethernet
+
+	var rb, wb bulk.Batch
+	rb.Messages = make([]bulk.Message, N)
+	wb.Messages = make([]bulk.Message, N)
+	for i := 0; i < N; i++ {
+		rb.Messages[i].Data = make([]byte, dataLen)
+		wb.Messages[i].Data = make([]byte, dataLen)
+		wb.Messages[i].Addr = s.LocalAddr()
+	}
+
+	go func() {
+		wb.Scatter()
+		for {
+			if _, err := c.WriteBatch(&wb); err != nil {
+				break
+			}
+		}
+	}()
+
+	rb.Scatter()
+	for i := 0; i < b.N; i++ {
+		if _, err := s.ReadBatch(&rb); err != nil {
 			b.Fatal(err)
 		}
 		rb.Reset()

@@ -17,6 +17,7 @@ func (iov *iovec) set(b []byte) {
 
 const (
 	sysGETSOCKNAME = 6
+	sysGETPEERNAME = 7
 	sysRECVMMSG    = 19
 	sysSENDMMSG    = 20
 )
@@ -31,6 +32,17 @@ func getsockname(s uintptr) (net.IP, int, string, error) {
 		return nil, 0, "", error(errno)
 	}
 	ip, port, zone := ipPortZone((*byte)(unsafe.Pointer(&b[0])), l)
+	return ip, port, zone, nil
+}
+
+func getpeername(s uintptr) (net.IP, int, string, error) {
+	b := make([]byte, 128) // sizeofSockaddrStorage
+	r := uint32(128)
+	_, errno := socketcall(sysGETPEERNAME, s, uintptr(unsafe.Pointer(&b[0])), uintptr(unsafe.Pointer(&r)), 0, 0, 0)
+	if errno != 0 {
+		return nil, 0, "", error(errno)
+	}
+	ip, port, zone := ipPortZone((*byte)(unsafe.Pointer(&b[0])), r)
 	return ip, port, zone, nil
 }
 
